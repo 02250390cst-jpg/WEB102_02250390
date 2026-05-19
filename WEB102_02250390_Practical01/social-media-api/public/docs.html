@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Social Media API Documentation</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 20px;
+        color: #333;
+      }
+      h1,
+      h2,
+      h3 {
+        color: #0066cc;
+      }
+      .endpoint {
+        margin-bottom: 30px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 20px;
+      }
+      .method {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 5px;
+        color: white;
+        font-weight: bold;
+      }
+      .get {
+        background-color: #6f1affe;
+      }
+      .post {
+        background-color: #49cc90;
+      }
+      .put {
+        background-color: #fca130;
+      }
+      .delete {
+        background-color: #f93e3e;
+      }
+      .code {
+        background: #f4f4f4;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 10px;
+        font-family: monospace;
+        white-space: pre-wrap;
+      }
+
+      .url {
+        margin-left: 10px;
+        font-family: monospace;
+        font-size: 1.1em;
+      }
+
+      pre {
+        background-color: #f5f5f5;
+        padding: 10px;
+        border-radius: 5px;
+        overflow-x: auto;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+
+      th {
+        background-color: #f2f2f2;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Social Media API Documentation</h1>
+    <p>Quick reference for the available endpoints.</p>
+
+    <div class="endpoint">
+      <h2>
+        <span class="method get">GET</span> /api/users
+      </h2>
+      <p>Get a paginated list of users.</p>
+      <p>Query Parameters:</p>
+      <table>
+        <tr>
+          <th>Parameter</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td><code>page</code></td>
+          <td>integer</td>
+          <td>Page number (default: 1)</td>
+        </tr>
+        <tr>
+          <td><code>limit</code></td>
+          <td>integer</td>
+          <td>Number of items per page (default: 10)</td>
+        </tr>
+      </table>
+      <div class="code">curl -X GET "http://localhost:3000/api/users?page=1&limit=10"</div>
+
+      <h3>Response</h3>
+      <pre>{
+  "success": true,
+  "count": 2,
+  "page": 1,
+  "total_pages": 2,
+  "pagination": {
+    "next": {
+      "page": 2,
+      "limit": 10
+    }
+  },
+  "data": [
+      {
+        "id": "1",
+        "username": "traveler",
+        "full_name": "Karma",
+        "profile_picture": "https://example.com/profiles/traveler.jpg",
+        "bio": "Travel photographer",
+        "created_at": "2023-01-15"
+      }
+    ]
+}</pre>
+    </div>
+
+    <div class="endpoint">
+      <h2>
+        <span class="method get">GET</span> /api/users/:id
+      </h2>
+      <p>Get a specific user by ID.</p>
+
+      <h3>Parameters</h3>
+      <table>
+        <tr>
+          <th>Parameter</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td><code>id</code></td>
+          <td>String</td>
+          <td>User ID</td>
+        </tr>
+      </table>
+
+      <div class="code">curl -X GET "http://localhost:3000/api/users/1"</div>
+
+      <h3>Response</h3>
+      <pre>{
+  "success": true,
+  "data": {
+    "id": "1",
+    "username": "traveler",
+    "full_name": "Karma",
+    "profile_picture": "https://example.com/profiles/traveler.jpg",
+    "bio": "Travel photographer",
+    "created_at": "2023-01-15"
+  }
+}</pre>
+    </div>
+
+    <div class="endpoint">
+      <h2>
+        <span class="method post">POST</span> /api/users
+      </h2>
+      <p>Create a new user.</p>
+
+      <h3>Request Body</h3>
+      <pre>{
+  "username": "new_traveler",
+  "email": "new@example.com",
+  "full_name": "New Traveler",
+  "bio": "Adventure seeker"
+}</pre>
+
+      <div class="code">
+        curl -X POST "http://localhost:3000/api/users" \
+          -H "Content-Type: application/json" \
+          -d '{"username":"newuser","email":"newuser@example.com"}'
+      </div>
+
+      <h3>Response</h3>
+      <pre>{
+  "success": true,
+  "data": {
+    "id": "4",
+    "username": "new_traveler",
+    "email": "new@example.com",
+    "full_name": "New Traveler",
+    "profile_picture": "default-profile.jpg",
+    "bio": "Adventure seeker",
+    "created_at": "2023-03-20"
+  }
+}</pre>
+    </div>
+
+    <div class="endpoint">
+      <h2>
+        <span class="method put">PUT</span> /api/users/:id
+      </h2>
+      <p>Update a user by id.</p>
+
+      <h3>Parameters</h3>
+      <table>
+        <tr>
+          <th>Parameter</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td><code>id</code></td>
+          <td>String</td>
+          <td>User ID</td>
+        </tr>
+      </table>
+
+      <h3>Request Body</h3>
+      <pre>{
+  "bio": "Updated bio",
+  "full_name": "Updated Name"
+}</pre>
+
+      <div class="code">
+        curl -X PUT "http://localhost:3000/api/users/1" \
+          -H "Content-Type: application/json" \
+          -d '{"bio":"Updated bio"}'
+      </div>
+
+      <h3>Response</h3>
+      <pre>{
+  "success": true,
+  "data": {
+    "id": "1",
+    "username": "traveler",
+    "full_name": "Updated Name",
+    "profile_picture": "https://example.com/profiles/traveler.jpg",
+    "bio": "Updated bio",
+    "created_at": "2023-01-15"
+  }
+}</pre>
+    </div>
+
+    <div class="endpoint">
+      <h2>
+        <span class="method delete">DELETE</span> /api/users/:id
+      </h2>
+      <p>Delete a user by id.</p>
+
+      <h3>Parameters</h3>
+      <table>
+        <tr>
+          <th>Parameter</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td><code>id</code></td>
+          <td>String</td>
+          <td>User ID</td>
+        </tr>
+      </table>
+
+      <div class="code">curl -X DELETE "http://localhost:3000/api/users/1"</div>
+
+      <h3>Response</h3>
+      <pre>{
+  "success": true,
+  "data": {}
+}</pre>
+    </div>
+
+    <div class="endpoint">
+      <h2>
+        <span class="method get">GET</span> /api/posts
+      </h2>
+      <p>Get a paginated list of posts.</p>
+
+      <h3>Query Parameters</h3>
+      <table>
+        <tr>
+          <th>Parameter</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td><code>page</code></td>
+          <td>integer</td>
+          <td>Page number (default: 1)</td>
+        </tr>
+        <tr>
+          <td><code>limit</code></td>
+          <td>integer</td>
+          <td>Number of items per page (default: 10)</td>
+        </tr>
+      </table>
+
+      <div class="code">curl -X GET "http://localhost:3000/api/posts?page=1&limit=10"</div>
+
+      <h3>Response</h3>
+      <pre>{
+  "success": true,
+  "count": 2,
+  "page": 1,
+  "total_pages": 1,
+  "pagination": {},
+  "data": [
+    {
+      "id": "1",
+      "user_id": "1",
+      "title": "Hello World",
+      "body": "This is my first post! Happy to be here.",
+      "created_at": "2026-03-01",
+      "user": {
+        "id": "1",
+        "username": "alice",
+        "full_name": "Alice Johnson",
+        "profile_picture": "https://i.pravatar.cc/150?img=1"
+      }
+    }
+  ]
+}</pre>
+    </div>
+
+    <div class="endpoint">
+      <h2>
+        <span class="method get">GET</span> /api/posts/:id
+      </h2>
+      <p>Get a single post by id.</p>
+
+      <h3>Parameters</h3>
+      <table>
+        <tr>
+          <th>Parameter</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td><code>id</code></td>
+          <td>String</td>
+          <td>Post ID</td>
+        </tr>
+      </table>
+
+      <div class="code">curl -X GET "http://localhost:3000/api/posts/1"</div>
+
+      <h3>Response</h3>
+      <pre>{
+  "success": true,
+  "data": {
+    "id": "1",
+    "user_id": "1",
+    "title": "Hello World",
+    "body": "This is my first post! Happy to be here.",
+    "created_at": "2026-03-01",
+    "user": {
+      "id": "1",
+      "username": "alice",
+      "full_name": "Alice Johnson",
+      "profile_picture": "https://i.pravatar.cc/150?img=1"
+    }
+  }
+}</pre>
+    </div>
+
+    <div class="endpoint">
+      <h2>
+        <span class="method post">POST</span> /api/posts
+      </h2>
+      <p>Create a new post.</p>
+
+      <h3>Headers</h3>
+      <table>
+        <tr>
+          <th>Header</th>
+          <th>Value</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td><code>X-User-Id</code></td>
+          <td>1</td>
+          <td>ID of the user creating the post</td>
+        </tr>
+      </table>
+
+      <h3>Request Body</h3>
+      <pre>{
+  "title": "New post",
+  "body": "Hello world"
+}</pre>
+
+      <div class="code">
+        curl -X POST "http://localhost:3000/api/posts" \
+          -H "Content-Type: application/json" \
+          -H "X-User-Id: 1" \
+          -d '{"title":"New post","body":"Hello world"}'
+      </div>
+
+      <h3>Response</h3>
+      <pre>{
+  "success": true,
+  "data": {
+    "id": "4",
+    "user_id": "1",
+    "title": "New post",
+    "body": "Hello world",
+    "created_at": "2026-03-19"
+  }
+}</pre>
+    </div>
+
+    <div class="endpoint">
+      <h2>
+        <span class="method put">PUT</span> /api/posts/:id
+      </h2>
+      <p>Update a post (requires `X-User-Id`).</p>
+
+      <h3>Headers</h3>
+      <table>
+        <tr>
+          <th>Header</th>
+          <th>Value</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td><code>X-User-Id</code></td>
+          <td>1</td>
+          <td>User ID (must match post owner)</td>
+        </tr>
+      </table>
+
+      <h3>Request Body</h3>
+      <pre>{
+  "body": "Updated body"
+}</pre>
+
+      <div class="code">
+        curl -X PUT "http://localhost:3000/api/posts/1" \
+          -H "Content-Type: application/json" \
+          -H "X-User-Id: 1" \
+          -d '{"body":"Updated body"}'
+      </div>
+
+      <h3>Response</h3>
+      <pre>{
+  "success": true,
+  "data": {
+    "id": "1",
+    "user_id": "1",
+    "title": "Hello World",
+    "body": "Updated body",
+    "created_at": "2026-03-01"
+  }
+}</pre>
+    </div>
+
+    <div class="endpoint">
+      <h2>
+        <span class="method delete">DELETE</span> /api/posts/:id
+      </h2>
+      <p>Delete a post (requires `X-User-Id`).</p>
+
+      <h3>Headers</h3>
+      <table>
+        <tr>
+          <th>Header</th>
+          <th>Value</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td><code>X-User-Id</code></td>
+          <td>1</td>
+          <td>User ID (must match post owner)</td>
+        </tr>
+      </table>
+
+      <div class="code">
+        curl -X DELETE "http://localhost:3000/api/posts/1" \
+          -H "X-User-Id: 1"
+      </div>
+
+      <h3>Response</h3>
+      <pre>{
+  "success": true,
+  "data": {}
+}</pre>
+    </div>
+
+    <div class="endpoint">
+      <h2>
+        <span class="method get">GET</span> /api/comments
+      </h2>
+      <p>Get a paginated list of comments.</p>
+      <div class="code">curl -X GET "http://localhost:3000/api/comments?page=1&limit=10"</div>
+    </div>
+
+    <div class="endpoint">
+      <h2>
+        <span class="method post">POST</span> /api/comments
+      </h2>
+      <p>Create a new comment (requires `X-User-Id`).</p>
+      <div class="code">
+        curl -X POST "http://localhost:3000/api/comments" \
+          -H "Content-Type: application/json" \
+          -H "X-User-Id: 2" \
+          -d '{"post_id":"1","body":"Nice post!"}'
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <h2>
+        <span class="method delete">DELETE</span> /api/comments/:id
+      </h2>
+      <p>Delete a comment (requires `X-User-Id`).</p>
+      <div class="code">
+        curl -X DELETE "http://localhost:3000/api/comments/1" \
+          -H "X-User-Id: 2"
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <h2>
+        <span class="method get">GET</span> /api/likes
+      </h2>
+      <p>Get a paginated list of likes.</p>
+      <div class="code">curl -X GET "http://localhost:3000/api/likes?page=1&limit=10"</div>
+    </div>
+
+    <div class="endpoint">
+      <h2>
+        <span class="method post">POST</span> /api/likes
+      </h2>
+      <p>Like a post (requires `X-User-Id`).</p>
+      <div class="code">
+        curl -X POST "http://localhost:3000/api/likes" \
+          -H "Content-Type: application/json" \
+          -H "X-User-Id: 2" \
+          -d '{"post_id":"1"}'
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <h2>
+        <span class="method delete">DELETE</span> /api/likes/:id
+      </h2>
+      <p>Remove a like (requires `X-User-Id`).</p>
+      <div class="code">
+        curl -X DELETE "http://localhost:3000/api/likes/1" \
+          -H "X-User-Id: 2"
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <h2>
+        <span class="method get">GET</span> /api/followers
+      </h2>
+      <p>Get a paginated list of followers.</p>
+      <div class="code">curl -X GET "http://localhost:3000/api/followers?page=1&limit=10"</div>
+    </div>
+
+    <div class="endpoint">
+      <h2>
+        <span class="method post">POST</span> /api/followers
+      </h2>
+      <p>Follow a user (requires `X-User-Id`).</p>
+      <div class="code">
+        curl -X POST "http://localhost:3000/api/followers" \
+          -H "Content-Type: application/json" \
+          -H "X-User-Id: 2" \
+          -d '{"user_id":"1"}'
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <h2>
+        <span class="method delete">DELETE</span> /api/followers/:id
+      </h2>
+      <p>Unfollow a user (requires `X-User-Id`).</p>
+      <div class="code">
+        curl -X DELETE "http://localhost:3000/api/followers/1" \
+          -H "X-User-Id: 2"
+      </div>
+    </div>
+  </body>
+</html>
