@@ -1,0 +1,38 @@
+# Reflection: Practical 5 – Implementing Cloud Storage with Supabase
+
+## What I Learned
+
+Before this practical, storing files meant saving them to a local `uploads` folder on the server — simple enough for development, but not something that would hold up in a real deployment. This practical made it very clear why that approach falls apart at scale: disk space fills up, files vanish when servers redeploy, and there's no CDN to serve content quickly to users in different regions.
+
+Supabase Storage offered a practical introduction to cloud object storage. The concept of organizing files into **buckets** with their own access policies was straightforward, but understanding *why* the policies are structured the way they are — authenticated users can upload, but anyone can read — was an important detail. It reflects the real security model of a social media platform where content is public but only logged-in users should be able to post.
+
+One of the most useful architectural lessons from this practical was the **direct upload pattern**: files go from the browser straight to Supabase, not through our Express server. This is a meaningful performance improvement — the server only stores metadata (the URL and storage path) in PostgreSQL rather than handling the full file transfer. Understanding this separation of concerns — the server handles logic and metadata, the cloud handles files — is a pattern that comes up constantly in modern web development.
+
+The distinction between the **service role key** and the **anon key** was also an important takeaway. Using the service key on the backend (where it's never exposed to the browser) while using the anon key on the frontend is a security boundary that prevents clients from bypassing storage policies.
+
+---
+
+## Challenges Faced
+
+Setting up the Supabase policies correctly required careful reading. Getting the allowed operations and target roles wrong (for example, accidentally granting upload access to anonymous users) would create a security hole, so it was important to understand each field before clicking create.
+
+Managing environment variables across both the frontend and backend added some complexity. The backend uses `SUPABASE_SERVICE_KEY`, which must stay server-side only, while the frontend uses `NEXT_PUBLIC_SUPABASE_PUBLIC_KEY`, which is intentionally exposed. Keeping track of which key belongs where — and making sure `NEXT_PUBLIC_` prefixed variables were correctly set in `.env.local` for Next.js — required attention.
+
+Updating the Prisma schema to add `videoStoragePath` and `thumbnailStoragePath` fields also meant running a new migration and ensuring the video controller correctly saved those paths on upload. These paths are necessary for deleting files from Supabase when a video is removed — without storing them, there's no reliable way to know which object to delete from the bucket.
+
+---
+
+## What Could Be Improved
+
+A few things would make this implementation more robust in production:
+
+- **File type and size validation** should happen before the upload reaches Supabase, both on the frontend (for user feedback) and on the backend (as a security check), to prevent unexpected or malicious file uploads
+- **Error handling for failed uploads** could be more graceful — if the Supabase upload succeeds but the database write fails, the file would be orphaned in the bucket with no reference in the database. A transaction or cleanup step would prevent this
+- **Signed URLs** could be used for private content in the future — for example, if the application later adds private videos visible only to followers, Supabase supports time-limited signed URLs instead of public access
+- The migration script for moving existing local files to Supabase is a one-time utility, but it would benefit from better logging and a dry-run mode so it can be tested safely before committing to the migration
+
+---
+
+## Overall Takeaway
+
+This practical shifted the application from a prototype-grade file handling setup to something closer to how production applications actually work. The combination of Supabase for storage, PostgreSQL for metadata, and direct browser-to-cloud uploads forms a clean and scalable architecture. It also reinforced the importance of thinking about security at every layer — from bucket policies to API key management to which parts of the system each credential should be allowed to reach.
